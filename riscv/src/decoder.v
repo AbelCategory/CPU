@@ -1,8 +1,87 @@
+`include "def.v"
+
 module Decoder (
-    input wire clk,
-    input wire rst,
-    input wire rdy
-
+    input wire [31:0] code,
+    output reg [5:0] opt,
+    output reg [4:0] rs1, rs2, rd,
+    output reg [31:0] imm
 );
-
+always @(*) begin
+    rd = code[11:7];
+    rs1 = code[19:15];
+    rs2 = code[24:20];
+    imm = 0;
+    case (code[6:0])
+        7'b0110111 : begin
+            opt = LUI;
+            imm = {code[31:12], 12'b0};
+        end
+        7'b0010111 : begin
+            opt = AUIPC;
+            imm = {code[31:12], 12'b0};
+        end
+        7'b1101111 : begin
+            opt = JAL;
+            imm = {12{code[31]}, code[19:12], code[20], code[30:21], 1'b0};
+        end
+        7'b1100111 : begin
+            opt = JALR;
+            imm = {20{code[31]}, code[31:20]};
+        end
+        7'b1100011 : begin
+            imm = {20{code[31]}, code[7], code[30:25], code[11:8], 1'b0};
+            case (code[14:12])
+                3'b000 : opt = BEQ;
+                3'b001 : opt = BNE;
+                3'b100 : opt = BLT;
+                3'b101 : opt = BGE;
+                3'b110 : opt = BLTU;
+                3'b111 : opt = BGEU;
+            endcase
+        end
+        7'b0000011 : begin
+            imm = {20{code[31]}, code[31:20]};
+            case (code[14:12])
+                3'b000 : opt = LB;
+                3'b001 : opt = LH;
+                3'b010 : opt = LW;
+                3'b100 : opt = LBU;
+                3'b101 : opt = LHU;
+            endcase
+        end
+        7'b0100011 : begin
+            imm = {20{code[31]}, code[31:25], code[11:7]};
+            case (code[14:12])
+                3'b000 : opt = SB;
+                3'b001 : opt = SH;
+                3'b010 : opt = SW;
+            endcase
+        end
+        7'b0010011 : begin
+            imm = (code[14:12] == 3'b001 || code[14:12] == 3'b101) ? {27'b0, code[24:20]} : {20{code[31]}, code[31:20]};
+            case (code[14:12])
+                3'b000 : opt = ADDI;
+                3'b010 : opt = SLTI;
+                3'b011 : opt = SLTIU;
+                3'b100 : opt = XORI;
+                3'b110 : opt = ORI;
+                3'b111 : opt = ANDI;
+                3'b001 : opt = SLLI;
+                3'b101 : opt = (code[31:25] == 7'b0) ? SRLI : SRAI;
+            endcase
+        end
+        7'b0110011 : begin
+            case (code[14:12])
+                3'b000 : opt = (code[31:25] == 7'b0) ? ADD : SUB;
+                3'b001 : opt = SLL;
+                3'b010 : opt = SLT;
+                3'b011 : opt = SLTU;
+                3'b100 : opt = XOR;
+                3'b101 : opt = (code[31:25] == 7'b0) ? SRL : SRA;
+                3'b110 : opt = OR;
+                3'b111 : opt = AND;
+            endcase
+        end
+    endcase
+end
 endmodule //Decoder
