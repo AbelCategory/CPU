@@ -1,4 +1,4 @@
-`define CACHE_SIZE 256:0
+`define CACHE_SIZE 255:0
 
 module icache (
     input wire clk,

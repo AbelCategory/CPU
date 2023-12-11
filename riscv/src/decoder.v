@@ -1,6 +1,50 @@
 `include "def.v"
 
-module Decoder (
+module Decoder(
+    input wire clk,
+    input wire rst,
+    input wire rdy,
+
+    input wire        from_if_ok,
+    input wire [31:0] from_if_pc,
+    input wire [31:0] from_if_ins,
+
+    output reg        to_rs_ready,
+    output reg [31:0] rs_vj, rs_vk,
+    output reg [ 4:0] rs_qj, rs_qk, rs_en,
+    output reg [ 5:0] opt_to_rs,
+
+    output reg        to_lsb_ready,
+    output reg [31:0] lsb_vj, lsb_vk,
+    output reg [ 4:0] lsb_qj, lsb_qk, lsb_en,
+    output reg [ 5:0] opt_to_lsb,
+
+    output reg        to_rob_ready
+
+);
+reg [5:0] opt;
+reg [4:0] rs1, rs2, rd, imm;
+wire is_L, is_S, is_B;
+decoder Dec(.code(from_if_ins), .opt(opt), .rs1(rs1), .rs2(rs2), .rd(rd), .imm(imm));
+assign is_L = opt[5:3] == 3'b101;
+assign is_S = opt[5:3] == 3'b111;
+assign is_B = opt[5:3] == 3'b100;
+always @(posedge clk) begin
+    if (rst) begin
+        to_rs_ready = 0; to_lsb_ready = 0; to_rob_ready = 0;
+
+    end
+    else if(!rdy) begin
+        
+    end
+    else begin
+        if()
+    end
+end
+endmodule //Decoder
+
+
+module decoder (
     input wire [31:0] code,
     output reg [5:0] opt,
     output reg [4:0] rs1, rs2, rd,

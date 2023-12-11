@@ -1,3 +1,4 @@
+`define IDLE 3'b000
 module ifetcher (
     input wire clk,
     input wire rst,
@@ -21,7 +22,9 @@ always @(posedge clk) begin
         
     end
     else begin
-        
+        if (stat == `IDLE) begin
+            
+        end
     end
 
 end
