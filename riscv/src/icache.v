@@ -5,8 +5,8 @@ module icache (
     input wire rst,
     input wire rdy,
     
-    input wire        from_if_ready,
-    input wire [31:0] from_if_addr,
+    input wire         from_if_ready,
+    input wire [31:0]  from_if_addr,
     output reg        to_if_ok,
     output reg [31:0] to_if_ins,
 
@@ -24,6 +24,7 @@ integer i;
 
 wire [7:0] index;
 wire [21:0] tag;
+wire cache_hit;
 assign index = from_if_addr[9:2];
 assign tag = from_if_addr[31:10];
 
@@ -42,30 +43,22 @@ always @(posedge clk) begin
     end
     else if (from_if_ready) begin
         if (cValid[index] && cTag[index] == tag) begin
-            to_if_ok <= 1;
             to_if_ins <= cData[index];
+            to_if_ok <= 1;
         end
         else begin
             if (from_mctr_ok) begin
                 cValid[i] <= 1;
                 cTag[i] <= tag;
                 cData[i] <= from_mctr_data;
-                to_if_ok <= 1;
                 to_if_ins <= from_mctr_data;
                 to_mctr_ready <= 0;
             end
             else if(!to_mctr_ready) begin
                 to_mctr_ready <= 1;
-                to_if_ok <= 0;
                 to_mctr_addr <= from_if_addr;
             end
-            else begin
-                to_if_ok <= 0;
-            end
         end
-    end
-    else begin
-        to_if_ok <= 0;
     end
 end
     

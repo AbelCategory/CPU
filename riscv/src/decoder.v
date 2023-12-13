@@ -12,14 +12,16 @@ module Decoder(
     output reg        to_rs_ready,
     output reg [31:0] rs_vj, rs_vk,
     output reg [ 4:0] rs_qj, rs_qk, rs_en,
-    output reg [ 5:0] opt_to_rs,
+    output reg [ 5:0] to_rs_opt,
 
     output reg        to_lsb_ready,
     output reg [31:0] lsb_vj, lsb_vk,
     output reg [ 4:0] lsb_qj, lsb_qk, lsb_en,
-    output reg [ 5:0] opt_to_lsb,
+    output reg [ 5:0] to_lsb_opt,
 
-    output reg        to_rob_ready
+    output reg        to_rob_ready,
+    
+    output reg [ 5:0] to_rob_opt,
 
 );
 reg [5:0] opt;
