@@ -2,6 +2,8 @@
 
 `define IDLE 3'b000
 `define IFETCH 3'b001
+`define READ   3'b010
+`define WRITE  3'b011
 module mem_ctrl (
     input wire clk,
     input wire rst,
@@ -20,7 +22,11 @@ module mem_ctrl (
 
     input wire        from_lsb_ready,
     input wire [31:0] from_lsb_addr,
-    input wire [ 5:0] from_lsb_op
+    input wire [ 5:0] from_lsb_op,
+
+    output reg        CDB_2_ok,
+    output reg [ 4:0] CDB_2_en,
+    output reg [31:0] CDB_2_val
 );
 reg [2:0] stat;
 reg [1:0] if_index;
@@ -46,6 +52,9 @@ always @(posedge clk) begin
             if (from_ic_ready) begin
                 stat = `IFETCH;
                 if_index = 2'b00;
+            end
+            else if(from_lsb_ready) begin
+                stat = from_lsb_op[5:3] == 3'b111 ? `WRITE : `READ;
             end
         end
         else if(stat == `IFETCH && from_ic_ready) begin

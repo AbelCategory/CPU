@@ -15,6 +15,13 @@ module REG (
 
     input wire [ 3:0] rob_en,
 
+    output wire [3:0] to_rob_Qj,
+    output wire [3:0] to_rob_Qk,
+    input wire        rob_Qj_ok,
+    input wire        rob_Qk_ok,
+    input wire [31:0] rob_Vj,
+    input wire [31:0] rob_Vk,
+
     input wire        rob_commit,
     input wire [ 3:0] rob_commit_en,
     input wire [31:0] rob_commit_val,
@@ -25,8 +32,11 @@ reg [ 3:0] reg_rob[`REG_SIZE];
 reg [`REG_SIZE] reg_busy;
 integer i;
 
-assign Vj = reg_busy[Rj] ? 0 : reg_val[Rj];
-assign Vk = reg_busy[Rk] ? 0 : reg_val[Rk];
+assign to_rob_Qj = reg_rob[Rj];
+assign to_rob_Qk = reg_rob[Rk];
+
+assign Vj = reg_busy[Rj] ? (rob_Qj_ok ? rob_Vj : 0) : reg_val[Rj];
+assign Vk = reg_busy[Rk] ? (rob_Qk_ok ? rob_Vk : 0) : reg_val[Rk];
 assign Qj = reg_busy[Rj] ? reg_rob[Rj] : 0;
 assign Qk = reg_busy[Rk] ? reg_rob[Rk] : 0;
 

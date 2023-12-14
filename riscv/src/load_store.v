@@ -51,6 +51,36 @@ always @(posedge clk) begin
             Qj[R] <= qj; Qk[R] <= qk;
             R <= R + 1;
         end
+
+        if (L != R && Qj[L] == 0 && Qk[L] == 0) begin
+            
+        end
+
+        if (CDB_1_ok) begin
+            for (i = 0; i < `LSB_LEN; ++i) begin
+                if (Qj[i] == CDB_1_en) begin
+                    Qj[i] <= 0;
+                    Vj[i] <= CDB_1_val;
+                end
+                if (Qk[i] == CDB_1_en) begin
+                    Qk[i] <= 0;
+                    Vk[i] <= CDB_1_val;
+                end
+            end
+        end
+
+        if (CDB_2_ok) begin
+            for (i = 0; i < `LSB_LEN; ++i) begin
+                if (Qj[i] == CDB_2_en) begin
+                    Qj[i] <= 0;
+                    Vj[i] <= CDB_1_val;
+                end
+                if (Qk[i] == CDB_2_en) begin
+                    Qk[i] <= 0;
+                    Vk[i] <= CDB_2_val;
+                end
+            end
+        end
     end
 end
 endmodule //LSB

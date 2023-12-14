@@ -10,7 +10,7 @@ module exec (
 
     output reg        CDB_1_ok,
     output reg [ 4:0] CDB_1_en,
-    output reg [31:0] CDB_1_val,
+    output reg [31:0] CDB_1_val
 );
 reg [31:0] rd;
 always @(*) begin
