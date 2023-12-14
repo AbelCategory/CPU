@@ -32,8 +32,7 @@ assign is_lsb_full = (L == R + 1) && from_dc_ok;
 
 always @(posedge clk) begin
     if (rst) begin
-        L <= 0;
-        R <= 0;
+        L <= 0; R <= 0;
         for (i = 0; i < `LSB_LEN; ++i) begin
             Qj[i] <= 0;
             Qk[i] <= 0;
