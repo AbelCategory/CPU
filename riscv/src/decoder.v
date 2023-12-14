@@ -34,7 +34,6 @@ assign is_B = opt[5:3] == 3'b100;
 always @(posedge clk) begin
     if (rst) begin
         to_rs_ready = 0; to_lsb_ready = 0; to_rob_ready = 0;
-
     end
     else if(!rdy) begin
         

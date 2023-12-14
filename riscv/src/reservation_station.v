@@ -9,30 +9,39 @@ module RS (
     input wire [31:0] vj, vk,
     input wire [ 4:0] qj, qk, en,
     input wire [ 5:0] opt,
+
+    output wire is_rs_full,
     
+    output reg [ 5:0] to_alu_ok,
     output reg [ 5:0] to_alu_opt,
     output reg [31:0] to_alu_rs1, to_alu_rs2, to_alu_imm,
     output reg [ 3:0] to_alu_en, 
     input wire [31:0] from_alu_rd,
 
     input wire        CDB_1_ok,
-    input wire [ 5:0] CDB_1_en,
+    input wire [ 4:0] CDB_1_en,
     input wire [31:0] CDB_1_val,
 
     input wire        CDB_2_ok,
-    input wire [ 5:0] CDB_2_en,
-    input wire [31:0] CDB_2_val
+    input wire [ 4:0] CDB_2_en,
+    input wire [31:0] CDB_2_val,
+
+    input wire clear
 );
 integer i;
 reg [`RS_SIZE] busy, ok;
-reg [ 4:0] op[`RS_SIZE];
+reg [ 5:0] op[`RS_SIZE];
 reg [31:0] Vj[`RS_SIZE], Vk[`RS_SIZE];
 reg [ 4:0] Qj[`RS_SIZE], Qk[`RS_SIZE], Qr[`RS_SIZE];
 wire [`RS_SIZE] emp = (~busy) & -(~busy);
 wire [`RS_SIZE] okp = ok & -ok;
+
+assign is_rs_full = emp == 0 && from_dc_ok;
+
 always @(posedge clk) begin
-    if(rst) begin
-        
+    if(rst || clear) begin
+        to_alu_ok <= 0;
+        busy <= 0;
     end
     else if(!rdy) begin
         
@@ -51,6 +60,7 @@ always @(posedge clk) begin
         if (ok != 0) begin
             for (i = 0; i < `RS_LEN; ++i) begin
                 if (okp[i] == 1) begin
+                    to_alu_ok <= 1;
                     to_alu_opt <= op[i];
                     to_alu_rs1 <= Vj[i];
                     case (op[i][5:3])
@@ -62,6 +72,9 @@ always @(posedge clk) begin
                     endcase
                 end
             end
+        end
+        else begin
+            to_alu_ok <= 0;
         end
 
         if (CDB_1_ok) begin

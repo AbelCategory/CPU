@@ -1,3 +1,5 @@
+`include "define.v"
+
 `define IDLE 3'b000
 `define IFETCH 3'b001
 module mem_ctrl (
@@ -14,8 +16,11 @@ module mem_ctrl (
     input wire [ 7:0] from_mem_data,
     output reg [ 7:0] to_mem_data,
     output reg [31:0] to_mem_addr,
-    output reg        mem_wr  
+    output reg        mem_wr,
 
+    input wire        from_lsb_ready,
+    input wire [31:0] from_lsb_addr,
+    input wire [ 5:0] from_lsb_op
 );
 reg [2:0] stat;
 reg [1:0] if_index;
@@ -46,24 +51,27 @@ always @(posedge clk) begin
         else if(stat == `IFETCH && from_ic_ready) begin
             case (if_index)
                 2'b00 : begin
-                    to_ic_data[ 7: 0] = from_mem_data;
+                    to_ic_data[ 7: 0] <= from_mem_data;
                     if_index = 2'b01;
                 end
                 2'b01 : begin
-                    to_ic_data[15 : 8] = from_mem_data;
+                    to_ic_data[15 : 8] <= from_mem_data;
                     if_index = 2'b10;
                 end
                 2'b10 : begin
-                    to_ic_data[23:16] = from_mem_data;
+                    to_ic_data[23:16] <= from_mem_data;
                     if_index = 2'b11;
                 end
                 2'b11 : begin
-                    to_ic_data[31:24] = from_mem_data;
+                    to_ic_data[31:24] <= from_mem_data;
                     to_ic_ready = 1;
                     if_index = 2'b00;
                     ic_ok = 1;
                 end
             endcase
+        end
+        else if(stat == `) begin
+            
         end
     end
 end
