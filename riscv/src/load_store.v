@@ -9,8 +9,18 @@ module LSB (
     input wire [31:0] vj, vk,
     input wire [ 4:0] qj, qk, en,
     input wire [ 5:0] opt,
+
+    input wire        from_mc_ok,
+    output reg        to_mc_ok,
+    output reg [31:0] to_mc_addr,
+    output reg [31:0] to_mc_imm,
+    output reg [31:0] to_mc_val,
+    output reg [ 5:0] to_mc_opt,
     
     output wire is_lsb_full,
+
+    input wire        from_rob_commit,
+    input wire [ 3:0] from_rob_pos,
 
     input wire        CDB_1_ok,
     input wire [ 4:0] CDB_1_en,
@@ -53,7 +63,25 @@ always @(posedge clk) begin
         end
 
         if (L != R && Qj[L] == 0 && Qk[L] == 0) begin
-            
+            if (from_mc_ok) begin
+                to_mc_ok <= 1;
+                to_mc_opt <= op[L];
+                to_mc_addr <= Vj[L];
+                if (op[L][5:3] == 3'b101) begin // Load
+                    to_mc_imm <= Vk[L];
+                    to_mc_val <= en[L];
+                end
+                else begin // Store
+                    to_mc_imm <= en[L];
+                    to_mc_val <= Vk[L];
+                end
+            end
+            else begin
+                to_mc_ok <= 0;
+            end
+        end
+        else begin
+            to_mc_ok <= 0;
         end
 
         if (CDB_1_ok) begin
@@ -80,6 +108,10 @@ always @(posedge clk) begin
                     Vk[i] <= CDB_2_val;
                 end
             end
+        end
+
+        if (from_rob_commit) begin
+            Qk[from_rob_pos] <= 0;
         end
     end
 end

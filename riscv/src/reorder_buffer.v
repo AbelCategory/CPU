@@ -19,8 +19,8 @@ module ROB (
     output reg [31:0] reg_commit_val,
     output reg [ 4:0] reg_commit_addr,
 
-    output reg        to_lsb_ok,
-    output reg [ 3:0] to_lsb_rob,
+    output reg        to_lsb_commit,
+    output reg [ 3:0] to_lsb_pos,
 
     input wire  [ 3:0] from_reg_Qj,
     input wire  [ 3:0] from_reg_Qk,
@@ -35,7 +35,7 @@ module ROB (
 
     input wire        CDB_2_ok,
     input wire [ 4:0] CDB_2_en,
-    input wire [31:0] CDB_2_val 
+    input wire [31:0] CDB_2_val
 );
 integer i;
 reg [ 3:0] L, R;
@@ -72,11 +72,13 @@ always @(posedge clk) begin
             case (op[L][5:3])
                 // L-type
                 3'b101 : begin
-                    
+                    reg_commit <= 1;
+                    to_lsb_commit <= 0;
                 end
                 // S-type
                 3'b111 : begin
-                    
+                    to_lsb_commit <= 1;
+                    to_lsb_pos <= Val[L];
                 end
                 // B-type
                 3'b100 : begin
@@ -85,7 +87,15 @@ always @(posedge clk) begin
                 // I-type
                 3'b010 : begin
                     reg_commit <= 1;
-
+                    to_lsb_commit <= 0;
+                end
+                3'b000 : begin
+                    if (op[L] == 1) begin // AUIPC
+                        
+                    end
+                    else begin
+                        
+                    end
                 end
             endcase
             L <= L + 1;
