@@ -35,7 +35,7 @@
 `define SB  6'b111001
 `define SH  6'b111010
 `define SW  6'b111011
-// B=type
+// B-type
 `define BEQ 6'b100000
 `define BNE 6'b100001
 `define BLT 6'b100010

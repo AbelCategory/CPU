@@ -7,7 +7,7 @@ module ROB (
 
     input wire        from_dc_ok,
     input wire [ 5:0] opt,
-    input wire [31:0] val,
+    // input wire [31:0] val,
     input wire [ 4:0] en,
     input wire        dc_jump,
     input wire [31:0] dc_jump_addr,
@@ -15,6 +15,10 @@ module ROB (
     output wire is_rob_full,
 
     output wire [3:0] out_rob_en,
+
+    output reg        to_predictor_ok,
+    output reg [31:0] to_predictor_add,
+    output reg [31:0] to_predictor_jump,
 
     output reg        reg_commit,
     output reg [ 3:0] reg_commit_en,
@@ -42,9 +46,10 @@ module ROB (
 );
 integer i;
 reg [ 3:0] L, R;
-reg [`ROB_SIZE] ok;
+reg [`ROB_SIZE] ok, jp;
 reg [ 5:0] op[`ROB_SIZE];
 reg [31:0] Val[`ROB_SIZE];
+reg [31:0] pc[`ROB_SIZE];
 reg [ 4:0] Qr[ `ROB_SIZE];
 
 assign reg_Qj_ok = ok[from_reg_Qj];
@@ -66,8 +71,8 @@ always @(posedge clk) begin
     end
     else begin
         if (from_dc_ok) begin
-            op[R] <= opt; Val[R] <= val;
-            ok[R] <= 0; 
+            op[R] <= opt; jp[R] <= dc_jump;
+            ok[R] <= 0; pc[R] <= dc_jump_addr;
             R <= R + 1;
         end
         if (L != R && ok[L]) begin
@@ -89,7 +94,11 @@ always @(posedge clk) begin
                 end
                 // B-type
                 3'b100 : begin
-                    
+                    if (Val[L][0] != jp[L]) begin
+                        to_predictor_ok <= 1;
+                        to_predictor_jump <= Val[L][0];
+                        to_predictor_add <= pc[L];
+                    end
                 end
                 // I-type
                 3'b010 : begin
@@ -109,6 +118,11 @@ always @(posedge clk) begin
                 end
             endcase
             L <= L + 1;
+        end
+        else begin
+            reg_commit <= 0;
+            to_lsb_commit <= 0;
+            to_predictor_ok <= 0;
         end
 
         if (CDB_1_ok) begin

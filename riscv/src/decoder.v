@@ -6,8 +6,9 @@ module Decoder(
     input wire rdy,
 
     input wire        from_if_ok,
-    input wire [31:0] from_if_pc,
     input wire [31:0] from_if_ins,
+    input wire        from_if_jp,
+    input wire [31:0] from_if_pc,
 
     output reg        to_rs_ready,
     output reg [31:0] rs_vj, rs_vk,
@@ -20,17 +21,16 @@ module Decoder(
     output reg [ 5:0] to_lsb_opt,
 
     output reg        to_rob_ready,
-    
     output reg [ 5:0] to_rob_opt,
+    output reg [ 4:0] to_rob_en,
+    output reg        to_rob_jp,
+    output reg        to_rob_pc, 
+
 
     output wire        to_dc_ok,
-    output wire [ 4:0] Rj,
-    output wire [ 4:0] Rk,
-    output wire [ 4:0] Rr,
-    input wire  [31:0] Vj,
-    input wire  [31:0] Vk,
-    input wire  [ 3:0] Qj,
-    input wire  [ 3:0] Qk
+    output wire [ 4:0] Rj, Rk, Rr
+    input wire  [31:0] Vj, Vk,
+    input wire  [ 3:0] Qj, Qk
 
 );
 reg [5:0] opt;
@@ -45,13 +45,16 @@ assign Rr = rd;
 
 always @(posedge clk) begin
     if (rst) begin
-        to_rs_ready = 0; to_lsb_ready = 0; to_rob_ready = 0;
+        to_rs_ready <= 0; to_lsb_ready <= 0; to_rob_ready <= 0;
     end
     else if(!rdy) begin
         
     end
     else begin
         if (from_if_ok) begin
+            to_rob_ready <= 1;
+            to_rob_jp <= from_if_jp;
+            to_rob_pc <= ;
             case (opt[5:3])
                 3'b101 : begin //Load
                     to_lsb_ready <= 1;
@@ -63,18 +66,37 @@ always @(posedge clk) begin
                 3'b111 : begin //Store  
                     to_lsb_ready <= 1;
                     lsb_vj <= Vj; lsb_vk <= imm + Vk;
-                    lsb_qj <= Rj; lsb_qk <= 
+                    lsb_qj <= Rj; lsb_qk <= ;
                 end
                 3'b000 : begin
-                    
+                    if (opt == 0) begin // LUI
+                        to_rs_ready <= 1;
+                        to_rs_opt <= opt;
+                    end
                 end
                 3'b001 : begin
-                    
+                    to_rs_ready <= 1;
+                    to_rs_opt <= opt;
+                    rs_vj <= Vj; rs_vk <= Vk;
+                    rs_qj <= Rj; rs_qk <= Rk;
+                    rs_en <= rd;
                 end
                 3'b100 : begin
-                    
+                    rs_
+                end
+                3'b010 : begin
+                    to_rs_ready <= 1;
+                    to_rs_opt <= opt;
+                    rs_vj <= Vj; rs_vk <= imm;
+                    rs_qj <= Rj; rs_qk <= 0;
+                    rs_en <= rd;
                 end
             endcase
+        end
+        else begin
+            to_lsb_ready <= 1;
+            to_rob_ready <= 1;
+            to_rs_ready  <= 1;
         end
     end
 end

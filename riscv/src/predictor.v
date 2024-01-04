@@ -12,7 +12,7 @@ module predictor (
     output reg is_jump,
 
     input wire from_rob_ok,
-    input wire rob_is_jump, 
+    input wire rob_is_jump,
     input wire [31:0] data
 );
 reg [1:0] BHT[`BHT_SIZE];
