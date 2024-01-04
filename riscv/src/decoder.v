@@ -23,14 +23,26 @@ module Decoder(
     
     output reg [ 5:0] to_rob_opt,
 
+    output wire        to_dc_ok,
+    output wire [ 4:0] Rj,
+    output wire [ 4:0] Rk,
+    output wire [ 4:0] Rr,
+    input wire  [31:0] Vj,
+    input wire  [31:0] Vk,
+    input wire  [ 3:0] Qj,
+    input wire  [ 3:0] Qk
+
 );
 reg [5:0] opt;
 reg [4:0] rs1, rs2, rd, imm;
 wire is_L, is_S, is_B;
 decoder Dec(.code(from_if_ins), .opt(opt), .rs1(rs1), .rs2(rs2), .rd(rd), .imm(imm));
-assign is_L = opt[5:3] == 3'b101;
-assign is_S = opt[5:3] == 3'b111;
-assign is_B = opt[5:3] == 3'b100;
+
+assign to_dc_ok = from_if_ok;
+assign Rj = rs1;
+assign Rk = rs2;
+assign Rr = rd;
+
 always @(posedge clk) begin
     if (rst) begin
         to_rs_ready = 0; to_lsb_ready = 0; to_rob_ready = 0;
@@ -39,7 +51,31 @@ always @(posedge clk) begin
         
     end
     else begin
-        if()
+        if (from_if_ok) begin
+            case (opt[5:3])
+                3'b101 : begin //Load
+                    to_lsb_ready <= 1;
+                    lsb_vj <= Vj; lsb_vk <= imm;
+                    lsb_qj <= Rj; lsb_qk <= 0;
+                    lsb_en <= rd;
+                    lsb_opt <= opt;
+                end
+                3'b111 : begin //Store  
+                    to_lsb_ready <= 1;
+                    lsb_vj <= Vj; lsb_vk <= imm + Vk;
+                    lsb_qj <= Rj; lsb_qk <= 
+                end
+                3'b000 : begin
+                    
+                end
+                3'b001 : begin
+                    
+                end
+                3'b100 : begin
+                    
+                end
+            endcase
+        end
     end
 end
 endmodule //Decoder

@@ -25,7 +25,7 @@ reg [2:0] stat;
 assign to_ic_addr = pc;
 assign to_ic_ready = stat == `IDLE;
 
-always @(*) begin
+always @(posedge clk) begin
     if (rst) begin
         pc <= 0;
     end
@@ -45,6 +45,5 @@ always @(*) begin
             to_decoder_ready <= 0;
         end
     end
-
 end
 endmodule //ifetcher

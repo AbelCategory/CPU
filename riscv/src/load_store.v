@@ -7,7 +7,7 @@ module LSB (
 
     input wire        from_dc_ok,
     input wire [31:0] vj, vk,
-    input wire [ 4:0] qj, qk, en,
+    input wire [ 4:0] qj, qk,
     input wire [ 5:0] opt,
 
     input wire        from_mc_ok,
@@ -19,8 +19,11 @@ module LSB (
     
     output wire is_lsb_full,
 
+    input wire [ 3:0] from_rob_en,
     input wire        from_rob_commit,
     input wire [ 3:0] from_rob_pos,
+    input wire [ 3:0] from_rob_val,
+    output wire [3:0] to_rob_lsb_en,
 
     input wire        CDB_1_ok,
     input wire [ 4:0] CDB_1_en,
@@ -56,7 +59,7 @@ always @(posedge clk) begin
     end
     else begin
         if (from_dc_ok) begin
-            op[R] <= opt; Qr[i] <= en;
+            op[R] <= opt; Qr[i] <= from_rob_en;
             Vj[R] <= vj; Vk[R] <= vk;
             Qj[R] <= qj; Qk[R] <= qk;
             R <= R + 1;
@@ -69,10 +72,10 @@ always @(posedge clk) begin
                 to_mc_addr <= Vj[L];
                 if (op[L][5:3] == 3'b101) begin // Load
                     to_mc_imm <= Vk[L];
-                    to_mc_val <= en[L];
+                    to_mc_val <= Qr[L];
                 end
                 else begin // Store
-                    to_mc_imm <= en[L];
+                    // to_mc_imm <= en[L];
                     to_mc_val <= Vk[L];
                 end
             end
@@ -90,10 +93,10 @@ always @(posedge clk) begin
                     Qj[i] <= 0;
                     Vj[i] <= CDB_1_val;
                 end
-                if (Qk[i] == CDB_1_en) begin
-                    Qk[i] <= 0;
-                    Vk[i] <= CDB_1_val;
-                end
+                // if (Qk[i] == CDB_1_en) begin
+                //     Qk[i] <= 0;
+                //     Vk[i] <= CDB_1_val;
+                // end
             end
         end
 
@@ -103,15 +106,16 @@ always @(posedge clk) begin
                     Qj[i] <= 0;
                     Vj[i] <= CDB_1_val;
                 end
-                if (Qk[i] == CDB_2_en) begin
-                    Qk[i] <= 0;
-                    Vk[i] <= CDB_2_val;
-                end
+                // if (Qk[i] == CDB_2_en) begin
+                //     Qk[i] <= 0;
+                //     Vk[i] <= CDB_2_val;
+                // end
             end
         end
 
         if (from_rob_commit) begin
             Qk[from_rob_pos] <= 0;
+            Vk[from_rob_pos] = Vk[from_rob_pos] + from_rob_val;
         end
     end
 end

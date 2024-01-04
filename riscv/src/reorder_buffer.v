@@ -14,6 +14,8 @@ module ROB (
     
     output wire is_rob_full,
 
+    output wire [3:0] out_rob_en,
+
     output reg        reg_commit,
     output reg [ 3:0] reg_commit_en,
     output reg [31:0] reg_commit_val,
@@ -21,6 +23,7 @@ module ROB (
 
     output reg        to_lsb_commit,
     output reg [ 3:0] to_lsb_pos,
+    output reg [31:0] to_lsb_val,
 
     input wire  [ 3:0] from_reg_Qj,
     input wire  [ 3:0] from_reg_Qk,
@@ -48,6 +51,8 @@ assign reg_Qj_ok = ok[from_reg_Qj];
 assign reg_Qk_ok = ok[from_reg_Qk];
 assign reg_Vj = ok[from_reg_Qj] ? Val[from_reg_Qj] : 0;
 assign reg_Vk = ok[from_reg_Qk] ? Val[from_reg_Qk] : 0;
+
+assign out_rob_en = R;
 
 always @(posedge clk) begin
     if (rst) begin
@@ -78,7 +83,9 @@ always @(posedge clk) begin
                 // S-type
                 3'b111 : begin
                     to_lsb_commit <= 1;
-                    to_lsb_pos <= Val[L];
+                    reg_commit <= 0;
+                    to_lsb_pos <= Qr[L];
+                    to_lsb_val <= Val[L];
                 end
                 // B-type
                 3'b100 : begin
@@ -94,8 +101,11 @@ always @(posedge clk) begin
                         
                     end
                     else begin
-                        
+                        reg_commit <= 1;
                     end
+                end
+                default: begin
+                    reg_commit <= 1;
                 end
             endcase
             L <= L + 1;
@@ -103,6 +113,12 @@ always @(posedge clk) begin
 
         if (CDB_1_ok) begin
             Val[CDB_1_en] <= CDB_1_val;
+            ok[CDB_1_en] <= 1;
+            for (i = L; i != R; ++i) begin
+                if (op[i][5:3] == 3'b111 && !ok[i]) begin
+                    
+                end
+            end
         end
 
         if (CDB_2_ok) begin
