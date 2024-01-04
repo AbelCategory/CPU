@@ -3,6 +3,8 @@
 `define AUIPC 6'b000001
 // J-type
 `define JAL 6'b000010
+// jalr
+`define JALR 6'b011111
 // R-type
 `define ADD 6'b000011
 `define SUB 6'b000100

@@ -7,7 +7,7 @@ module ROB (
 
     input wire        from_dc_ok,
     input wire [ 5:0] opt,
-    // input wire [31:0] val,
+    input wire [31:0] val,
     input wire [ 4:0] en,
     input wire        dc_jump,
     input wire [31:0] dc_jump_addr,
@@ -104,6 +104,9 @@ always @(posedge clk) begin
                 3'b010 : begin
                     reg_commit <= 1;
                     to_lsb_commit <= 0;
+                end
+                3'b011 : begin
+                    
                 end
                 3'b000 : begin
                     if (op[L] == 1) begin // AUIPC
