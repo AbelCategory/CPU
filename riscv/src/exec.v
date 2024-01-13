@@ -29,9 +29,9 @@ always @(*) begin
             `AND : rd = rs1 & rs2;
         
             // I-type
-            `JALR : begin
+            // `JALR : begin
 
-            end
+            // end
             `ADDI : rd = rs1 + imm;
             `SLTI : rd = $signed(rs1) < $signed(imm) ? 1 : 0;
             `SLTIU: rd = rs1 < imm ? 1 : 0;
@@ -57,6 +57,7 @@ always @(*) begin
         CDB_1_val = rd;
     end
     else begin
+        rd = 0;
         CDB_1_ok = 0;
         CDB_1_en = 0;
         CDB_1_val = 0;

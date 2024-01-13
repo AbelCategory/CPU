@@ -76,7 +76,29 @@ assign Rk = rs2;
 
 always @(*) begin
     if (rst || !rdy || clear) begin
-        to_rs_ready = 0; to_lsb_ready = 0; to_rob_ready = 0;
+        to_rs_ready = 0;
+        to_rs_opt = 0;
+        rs_vj = 0; rs_vk = 0;
+        rs_qj = 0; rs_qk = 0;
+
+        to_lsb_ready = 0;
+        to_lsb_isok = 0;
+        lsb_qj = 0; lsb_qk = 0;
+        lsb_vj = 0; lsb_vk = 0;
+        to_lsb_opt = 0;
+
+        to_rob_ready = 0;
+        to_rob_isok = 0;
+        to_rob_opt = 0;
+        to_rob_en = 0;
+        to_rob_jp = 0;
+        to_rob_val = 0;
+        to_rob_pc = 0;
+        to_rob_jpc = 0;
+
+
+        to_if_ok = 0;
+        to_if_pc = 0;
     end
     else begin
         if (from_if_ok) begin
@@ -89,12 +111,15 @@ always @(*) begin
             //     to_if_ok = 0;
             // end
             if (opt != 0 && opt != 1 && opt != 2 && opt != 31 && opt[5:3] != 7) begin
-                to_rob_val = 0;
+                // to_rob_val = 0;
                 to_rob_isok = 0;
             end
             else to_rob_isok = 1;
             case (opt[5:3])
                 3'b101 : begin //Load
+                    to_rob_val = 0;
+                    to_rob_jpc = 0;
+
                     to_rs_ready = 0;
                     to_rs_opt = 0;
                     rs_vj = 0; rs_vk = 0;
@@ -106,9 +131,14 @@ always @(*) begin
                     lsb_qj = Qj; lsb_qk = 16;
                     // lsb_en = rd;
                     to_lsb_opt = opt;
+
                     to_if_ok = 0;
+                    to_if_pc = 0;
                 end
                 3'b111 : begin //Store
+                    to_rob_val = 0;
+                    to_rob_jpc = 0;
+
                     // to be done
                     to_rs_ready = 0;
                     to_rs_opt = 0;
@@ -121,7 +151,9 @@ always @(*) begin
                     lsb_qj = Qj; lsb_qk = Qk;
                     // lsb_en = rd;
                     to_lsb_opt = opt;
+
                     to_if_ok = 0;
+                    to_if_pc = 0;
                 end
                 3'b011 : begin // JALR & SRAI
                     to_lsb_ready = 0;
@@ -130,15 +162,21 @@ always @(*) begin
                     lsb_vj = 0; lsb_vk = 0;
                     to_lsb_opt = 0;
 
+                    to_rob_jpc = 0;
+
                     if (opt[2:0] == 0) begin // SRAI
+                        to_rob_val = 0;
+
                         to_rs_ready = 1;
                         to_rs_opt = opt;
                         rs_vj = Vj; rs_vk = imm;
                         rs_qj = Qj; rs_qk = 16;
+
                         to_if_ok = 0;
+                        to_if_pc = 0;
                         // rs_en = rd;
                     end
-                    if (opt[2:0] == 7) begin //JALR
+                    else begin //JALR
                         to_rs_ready = 0;
                         to_rs_opt = 0;
                         rs_vj = 0; rs_vk = 0;
@@ -152,6 +190,7 @@ always @(*) begin
                         end
                         else begin
                             to_if_ok = 0;
+                            to_rob_val = 0;
                         end
                         // else begin
                         //     to_rob_ready = 0;
@@ -166,17 +205,33 @@ always @(*) begin
                     to_lsb_opt = 0;
 
                     to_if_ok = 0;
+                    to_if_pc = 0;
+
+                    to_rob_jpc = 0;
+
                     case (opt[2:0])
                         3'b000 : begin // LUI
                             to_rs_ready = 0;
+                            to_rs_opt = 0;
+                            rs_vj = 0; rs_vk = 0;
+                            rs_qj = 0; rs_qk = 0;
+
                             to_rob_val = imm;
                         end
                         3'b001 : begin // AUIPC
                             to_rs_ready = 0;
+                            to_rs_opt = 0;
+                            rs_vj = 0; rs_vk = 0;
+                            rs_qj = 0; rs_qk = 0;
+
                             to_rob_val = imm + from_if_pc;
                         end
                         3'b010 : begin // JAL
                             to_rs_ready = 0;
+                            to_rs_opt = 0;
+                            rs_vj = 0; rs_vk = 0;
+                            rs_qj = 0; rs_qk = 0;
+
                             to_rob_val = from_if_pc + 4;
                         end
                         default: begin //arith
@@ -184,12 +239,15 @@ always @(*) begin
                             to_rs_opt = opt;
                             rs_vj = Vj; rs_vk = Vk;
                             rs_qj = Qj; rs_qk = Qk;
+
+                            to_rob_val = 0;
                             // rs_en = rd;
                         end
                     endcase
                 end
                 3'b001 : begin
                     to_if_ok = 0;
+                    to_if_pc = 0;
 
                     to_lsb_ready = 0;
                     to_lsb_isok = 0;
@@ -201,10 +259,14 @@ always @(*) begin
                     to_rs_opt = opt;
                     rs_vj = Vj; rs_vk = Vk;
                     rs_qj = Qj; rs_qk = Qk;
+
+                    to_rob_val = 0;
+                    to_rob_jpc = 0;
                     // rs_en = rd;
                 end
                 3'b100 : begin //B
                     to_if_ok = 0;
+                    to_if_pc = 0;
 
                     to_lsb_ready = 0;
                     to_lsb_isok = 0;
@@ -225,9 +287,12 @@ always @(*) begin
                     else begin
                         to_rob_jpc = from_if_pc + imm;
                     end
+
+                    to_rob_val = 0;
                 end
                 3'b010 : begin //arith_I
                     to_if_ok = 0;
+                    to_if_pc = 0;
 
                     to_lsb_ready = 0;
                     to_lsb_isok = 0;
@@ -239,6 +304,9 @@ always @(*) begin
                     to_rs_opt = opt;
                     rs_vj = Vj; rs_vk = imm;
                     rs_qj = Qj; rs_qk = 16;
+
+                    to_rob_val = 0;
+                    to_rob_jpc = 0;
                     // rs_en = rd;
                 end
                 default : begin
@@ -248,7 +316,7 @@ always @(*) begin
                     lsb_vj = 0; lsb_vk = 0;
                     to_lsb_opt = 0;
 
-                    to_rob_ready = 0;
+                    // to_rob_ready = 0;
 
                     to_rs_ready = 0;
                     to_rs_opt = 0;
@@ -256,6 +324,10 @@ always @(*) begin
                     rs_qj = 0; rs_qk = 0;
 
                     to_if_ok = 0;
+                    to_if_pc = 0;
+
+                    to_rob_val = 0;
+                    to_rob_jpc = 0;
                 end
             endcase
         end
@@ -264,9 +336,20 @@ always @(*) begin
 
             to_rob_ready = 0;
             to_rob_isok = 0;
-            
-            to_rs_ready  = 0;
+            to_rob_opt = 0;
+            to_rob_en = 0;
+            to_rob_jp = 0;
+            to_rob_val = 0;
+            to_rob_pc = 0;
+
+            to_rs_ready = 0;
+            to_rs_opt = 0;
+            rs_vj = 0; rs_vk = 0;
+            rs_qj = 0; rs_qk = 0;
+
             to_if_ok = 0;
+            to_if_pc = 0;
+            to_rob_jpc = 0;
         end
     end
 end
