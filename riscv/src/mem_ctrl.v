@@ -266,7 +266,7 @@ always @(posedge clk) begin
                 to_lsb_done <= 0;
             end
         end
-        else if (stat == `WRITE && (store_addr[17:16] != 2'b11 || !io_buffer_full)) begin
+        else if (stat == `WRITE /*&& (store_addr[17:16] != 2'b11 || !io_buffer_full)*/) begin
             if (from_lsb_ready) begin
                case (rw_index)
                     3'b000 : begin
