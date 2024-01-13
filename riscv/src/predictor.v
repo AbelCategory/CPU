@@ -23,7 +23,7 @@ assign bht_pos = data[10:2];
 
 always @(posedge clk) begin
     if (rst) begin
-        for (i = 0; i < `BHT_LEN; ++i) begin
+        for (i = 0; i < `BHT_LEN; i = i + 1) begin
             BHT[i] <= 0;
         end
     end

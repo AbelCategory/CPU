@@ -52,7 +52,7 @@ always @(posedge clk) begin
     end
     else begin
         if (from_dc_ok) begin
-            for (i = 0; i < `RS_LEN; ++i) begin
+            for (i = 0; i < `RS_LEN; i = i + 1) begin
                 if (emp[i] == 1) begin
                     busy[i] <= 1;
                     Vj[i] <= vj; Vk[i] <= vk;
@@ -63,7 +63,7 @@ always @(posedge clk) begin
             end
         end
         if (ok != 0) begin
-            for (i = 0; i < `RS_LEN; ++i) begin
+            for (i = 0; i < `RS_LEN; i = i + 1) begin
                 if (okp[i] == 1) begin
                     to_alu_ok <= 1;
                     to_alu_opt <= op[i];
@@ -90,7 +90,7 @@ always @(posedge clk) begin
         end
 
         if (CDB_1_ok) begin
-            for (i = 0; i < `RS_LEN; ++i) begin
+            for (i = 0; i < `RS_LEN; i = i + 1) begin
                 if (busy[i] && !ok[i]) begin
                     if ((Qj[i] == 16 || Qj[i] == CDB_1_en) && (Qk[i] == 16 || Qk[i] == CDB_1_en)) begin
                         ok[i] <= 1;
@@ -108,7 +108,7 @@ always @(posedge clk) begin
         end
 
         if (CDB_2_ok) begin
-            for (i = 0; i < `RS_LEN; ++i) begin
+            for (i = 0; i < `RS_LEN; i = i + 1) begin
                 if (busy[i] && !ok[i]) begin
                     if ((Qj[i] == 16 || Qj[i] == CDB_2_en) && (Qk[i] == 16 || Qk[i] == CDB_2_en)) begin
                         ok[i] <= 1;

@@ -88,7 +88,7 @@ always @(posedge clk) begin
         emp <= 1;
         to_predictor_ok <= 0;
         L <= 0; R <= 0;
-        for (i = 0; i < `ROB_LEN; ++i) begin
+        for (i = 0; i < `ROB_LEN; i = i + 1) begin
             ok[i] <= 0;
         end
     end

@@ -70,7 +70,7 @@ always @(posedge clk) begin
     if (rst) begin
         pc <= 0;
         stat <= `IDLE;
-        for (i = 0; i < 256; ++i) begin
+        for (i = 0; i < 256; i = i + 1) begin
             cData[i] <= 0;
             cValid[i] <= 0;
             cTag[i] <= 0;

@@ -78,7 +78,7 @@ always @(posedge clk) begin
         is_lsb_work <= 0;
         to_mc_ok <= 0;
         emp <= 1;
-        for (i = 0; i < `LSB_LEN; ++i) begin
+        for (i = 0; i < `LSB_LEN; i = i + 1) begin
             Qj[i] <= 0;
             Qk[i] <= 0;
             commit[i] <= 0;
@@ -99,7 +99,7 @@ always @(posedge clk) begin
         $display("L: %d R: %d lst_commit: %d", L, R, lst_commit);
 `endif
         R <= lst_commit + 1;
-        for (i = 0; i < `LSB_LEN; ++i) begin
+        for (i = 0; i < `LSB_LEN; i = i + 1) begin
             if (!commit[i]) begin
                 busy[i] <= 0;
             end
@@ -169,7 +169,7 @@ always @(posedge clk) begin
             end
         end
         if (CDB_1_ok) begin
-            for (i = 0; i < `LSB_LEN; ++i) begin
+            for (i = 0; i < `LSB_LEN; i = i + 1) begin
                 if (busy[i]) begin
                     if (Qj[i] == CDB_1_en) begin
                         Qj[i] <= 16;
@@ -188,7 +188,7 @@ always @(posedge clk) begin
         end
 
         if (CDB_2_ok) begin
-            for (i = 0; i < `LSB_LEN; ++i) begin
+            for (i = 0; i < `LSB_LEN; i = i + 1) begin
                 if (busy[i]) begin
                     if (Qj[i] == CDB_2_en) begin
                         Qj[i] <= 16;
@@ -207,7 +207,7 @@ always @(posedge clk) begin
             // Qk[from_rob_pos] <= 0;
             // Vk[from_rob_pos] = Vk[from_rob_pos] + from_rob_val;
             // ok[from_rob_pos] <= 1;
-            for (i = 0; i < `LSB_LEN; ++i) begin
+            for (i = 0; i < `LSB_LEN; i = i + 1) begin
                 if (busy[i] && Qr[i] == from_rob_pos && op[i][5:3] == 3'b111 && !commit[i]) begin
                     commit[i] <= 1;
                     lst_commit <= i;

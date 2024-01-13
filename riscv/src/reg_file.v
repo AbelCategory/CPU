@@ -54,7 +54,7 @@ always @(posedge clk) begin
 `endif
     time_clock <= time_clock + 2;
     if (rst) begin
-        for (i = 0; i < 32; ++i) begin
+        for (i = 0; i < 32; i = i + 1) begin
             reg_val[i] <= 0;
             reg_busy[i] <= 0;
         end
@@ -83,7 +83,7 @@ always @(posedge clk) begin
 
 
         if (clear) begin
-            for (i = 0; i < 32; ++i) begin
+            for (i = 0; i < 32; i = i + 1) begin
                 reg_busy[i] <= 0;
                 reg_rob[i] <= 16;
             end
