@@ -97,6 +97,10 @@ wire [4:0] dec_rs_qj, dec_rs_qk, dec_lsb_qj, dec_lsb_qk;
 wire [4:0] dec_rob_en;
 wire [5:0] dec_rs_opt, dec_lsb_opt, dec_rob_opt;
 
+wire CDB_1_ok, CDB_2_ok;
+wire [3:0] CDB_1_en, CDB_2_en;
+wire [31:0] CDB_1_val, CDB_2_val;
+
 REG Reg(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
         .from_dc_ok(dec_rob_ok), .Rj(reg_Rj), .Rk(reg_Rk), .Rr(dec_rob_en), 
         .Vj(reg_Vj), .Vk(reg_Vk), .Qj(reg_Qj), .Qk(reg_Qk),
@@ -134,10 +138,6 @@ Decoder Issue(
            .CDB_1_ok(CDB_1_ok), .CDB_1_en(CDB_1_en), .CDB_1_val(CDB_1_val),
            .CDB_2_ok(CDB_2_ok), .CDB_2_en(CDB_2_en), .CDB_2_val(CDB_2_val)
            );
-
-wire CDB_1_ok, CDB_2_ok;
-wire [3:0] CDB_1_en, CDB_2_en;
-wire [31:0] CDB_1_val, CDB_2_val;
 
 
 wire exec_ok;

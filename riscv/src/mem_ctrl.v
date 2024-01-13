@@ -96,6 +96,7 @@ always @(posedge clk) begin
                     `SB  : res_index <= 0;
                     `SH  : res_index <= 1;
                     `SW  : res_index <= 3;
+                    default : res_index <= 0;
                 endcase
                 if (from_lsb_op == `LBU || from_lsb_op == `LHU) begin
                     is_U <= 1;
@@ -228,7 +229,7 @@ always @(posedge clk) begin
                     end
                     3'b100 : begin
                         CDB_2_ok <= 1;
-                        CDB_2_en <= val;
+                        CDB_2_en <= val[3:0];
                         case (res_index)
                             0 : begin
                                 data[7:0] <= from_mem_data;
