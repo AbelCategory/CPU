@@ -49,6 +49,8 @@ always @(*) begin
             `BGEU : rd = rs1 >= rs2;
             `BLT  : rd = $signed(rs1) < $signed(rs2);
             `BGE  : rd = $signed(rs1) >= $signed(rs2);
+            default : rd = 0;
+                
         endcase
         CDB_1_ok = 1;
         CDB_1_en = en;
@@ -56,6 +58,8 @@ always @(*) begin
     end
     else begin
         CDB_1_ok = 0;
+        CDB_1_en = 0;
+        CDB_1_val = 0;
     end
 end
 endmodule //exec

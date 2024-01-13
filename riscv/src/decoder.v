@@ -261,7 +261,10 @@ always @(*) begin
         end
         else begin
             to_lsb_ready = 0;
+
             to_rob_ready = 0;
+            to_rob_isok = 0;
+            
             to_rs_ready  = 0;
             to_if_ok = 0;
         end
