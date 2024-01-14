@@ -11,8 +11,8 @@
 // R-type
 `define ADD 6'b000011
 `define SUB 6'b000100
-`define SLL 6'b000011
-`define SLT 6'b000100
+`define SLL 6'b001011
+`define SLT 6'b001100
 `define SLTU 6'b000101
 `define XOR 6'b000110
 `define SRL 6'b000111
