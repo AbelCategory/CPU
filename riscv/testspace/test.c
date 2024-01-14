@@ -1,31 +1,32 @@
 #include "io.h"
-int cd(int d, char* a, char* b, char* c, int sum) {
-    sleep(5); // to prevent UART buffer from overflowing
-    if (d == 1) {
-        print("move ");
-        print(a);
-        print(" --> ");
-        println(c);
-        sum++;
-    } else {
-        sum = cd(d - 1, a, c, b, sum);
-        print("move ");
-        print(a);
-        print(" --> ");
-        println(c);
-        sum = cd(d - 1, b, a, c, sum);
-        sum++;
-    }
-    return sum;
-}
-
+int f[2801];
 int main() {
-    char a[5] = "A";
-	char b[5] = "B";
-	char c[5] = "C";
-    int d = 10;
-    int sum = cd(d, a, b, c, 0);
-    outlln(sum);
-    return 0;
-}
+	int a = 10000;
+	int b = 0;
+	int c = 2800;
+	int d = 0;
+	int e = 0;
+	int g = 0;
 
+	for (;b-c!=0;) 
+		f[b++] = a/5;
+	for (;; e = d%a){
+		d = 0;
+		g = c*2;
+		if (g==0) break;
+		
+		for (b=c;;d=d*b){
+			d=d+f[b]*a;
+			f[b] = d%--g;
+			d=d/g--;
+			if (--b==0) break;
+		}
+		
+		c = c-14;
+		outl(e+d/a); // should be printf("%04b"), but let it be
+		break;
+	}
+	
+  print("\n");
+  return 0;
+}

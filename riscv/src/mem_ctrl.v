@@ -267,51 +267,53 @@ always @(posedge clk) begin
                 to_lsb_done <= 0;
             end
         end
-        else if (stat == `WRITE && (store_addr[17:16] != 2'b11 || !io_buffer_full)) begin
+        else if (stat == `WRITE) begin
             if (from_lsb_ready) begin
-               case (rw_index)
-                    3'b000 : begin
-                        to_mem_addr <= store_addr;
-                        mem_wr <= 1;
-                        to_mem_data <= data[7:0];
-                        if (res_index == 0) begin
-                            to_lsb_done <= 1;
+                if (store_addr[17:16] != 2'b11 || !io_buffer_full) begin
+                    case (rw_index)
+                        3'b000 : begin
+                            to_mem_addr <= store_addr;
+                            mem_wr <= 1;
+                            to_mem_data <= data[7:0];
+                            if (res_index == 0) begin
+                                to_lsb_done <= 1;
+                                rw_index <= 3'b100;
+                            end
+                            else begin
+                                rw_index <= 3'b001;
+                            end
+                        end
+                        3'b001 : begin
+                            to_mem_data <= data[15:8];
+                            to_mem_addr <= to_mem_addr + 1;
+                            if (res_index == 1) begin
+                                rw_index <= 3'b100;
+                                to_lsb_done <= 1;
+                            end
+                            else begin
+                                rw_index <= 3'b010;
+                            end
+                        end
+                        3'b010 : begin
+                            to_mem_data <= data[23:16];
+                            to_mem_addr <= to_mem_addr + 1;
+                            rw_index <= 3'b011;
+                        end
+                        3'b011 : begin
+                            to_mem_data <= data[31:24];
+                            to_mem_addr <= to_mem_addr + 1;
                             rw_index <= 3'b100;
-                        end
-                        else begin
-                            rw_index <= 3'b001;
-                        end
-                    end
-                    3'b001 : begin
-                        to_mem_data <= data[15:8];
-                        to_mem_addr <= to_mem_addr + 1;
-                        if (res_index == 1) begin
-                            rw_index <= 3'b100;
                             to_lsb_done <= 1;
                         end
-                        else begin
-                            rw_index <= 3'b010;
+                        3'b100 : begin
+                            mem_wr <= 0;
+                            to_mem_addr <= 0;
+                            rw_index <= 3'b000;
+                            to_lsb_done <= 0;
+                            stat <= `IDLE;
                         end
-                    end
-                    3'b010 : begin
-                        to_mem_data <= data[23:16];
-                        to_mem_addr <= to_mem_addr + 1;
-                        rw_index <= 3'b011;
-                    end
-                    3'b011 : begin
-                        to_mem_data <= data[31:24];
-                        to_mem_addr <= to_mem_addr + 1;
-                        rw_index <= 3'b100;
-                        to_lsb_done <= 1;
-                    end
-                    3'b100 : begin
-                        mem_wr <= 0;
-                        to_mem_addr <= 0;
-                        rw_index <= 3'b000;
-                        to_lsb_done <= 0;
-                        stat <= `IDLE;
-                    end
-                endcase
+                    endcase
+                end
             end
             else begin
                 stat <= `IDLE;

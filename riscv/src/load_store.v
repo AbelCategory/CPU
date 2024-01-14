@@ -5,7 +5,7 @@
 module LSB (
     input wire clk,
     input wire rst,
-    inout wire rdy,
+    input wire rdy,
 
     input wire        from_dc_ok,
     input wire        from_dc_isk,
@@ -149,7 +149,7 @@ always @(posedge clk) begin
                 to_mc_addr <= Vj[L];
                 if (op[L][5:3] == 3'b101) begin // Load
                     to_mc_imm <= Vk[L];
-                    to_mc_val <= Qr[L];
+                    to_mc_val <= {27'b0, Qr[L]};
                     // if (L == 0) begin
                     //     $display("out: to_mc_addr %x to_mc_imm %x", Vj[L], Vk[L]);
                     // end

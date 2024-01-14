@@ -190,6 +190,7 @@ always @(*) begin
                         end
                         else begin
                             to_if_ok = 0;
+                            to_if_pc = 0;
                             to_rob_val = 0;
                         end
                         // else begin
@@ -333,6 +334,10 @@ always @(*) begin
         end
         else begin
             to_lsb_ready = 0;
+            to_lsb_isok = 0;
+            lsb_qj = 0; lsb_qk = 0;
+            lsb_vj = 0; lsb_vk = 0;
+            to_lsb_opt = 0;
 
             to_rob_ready = 0;
             to_rob_isok = 0;
@@ -341,6 +346,7 @@ always @(*) begin
             to_rob_jp = 0;
             to_rob_val = 0;
             to_rob_pc = 0;
+            to_rob_jpc = 0;
 
             to_rs_ready = 0;
             to_rs_opt = 0;
@@ -349,7 +355,6 @@ always @(*) begin
 
             to_if_ok = 0;
             to_if_pc = 0;
-            to_rob_jpc = 0;
         end
     end
 end
